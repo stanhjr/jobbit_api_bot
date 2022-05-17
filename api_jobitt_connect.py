@@ -5,7 +5,7 @@ import aiohttp
 import config
 
 
-# получаем даннные человека с сайта
+# get user data in website
 async def get_user_account_details(token):
     async with aiohttp.ClientSession() as session:
         headers = {
@@ -23,7 +23,7 @@ async def get_user_account_details(token):
                 return None
 
 
-# отвечаем сообщением на новую вакансию
+# reply with a message for new vacancy
 async def vacancy_response(vacancy, from_user, message):
     async with aiohttp.ClientSession() as session:
         headers = {
@@ -43,7 +43,7 @@ async def vacancy_response(vacancy, from_user, message):
                 return f'Сообщение не доставлно {resp.status}'
 
 
-# получаем текущий список скилов для подписки
+# get main list of skills
 async def get_skills_for_website():
     async with aiohttp.ClientSession() as session:
         async with session.get(f"{config.output_api_settings['api_hostname']}/api/specializations") as response:
@@ -56,7 +56,7 @@ async def get_skills_for_website():
                 return False
 
 
-# список подписок юзера (Stan)
+# list user subscriptions
 async def get_skills_for_user_in_website(website_user_id):
     async with aiohttp.ClientSession() as session:
         headers = {
@@ -76,7 +76,7 @@ async def get_skills_for_user_in_website(website_user_id):
                 return False
 
 
-# DELETE /api/telegram-bot/subscription/{user}/{subscription} - удаление подписки
+# delete subscriptions for skills
 async def delete_subscription_for_user_in_website(website_user_id, sub_id):
     async with aiohttp.ClientSession() as session:
         headers = {
@@ -93,7 +93,7 @@ async def delete_subscription_for_user_in_website(website_user_id, sub_id):
                 return False
 
 
-# отправляем запрос для подписки на скилы
+# send a request for subscriptions to skills
 async def skills_subscription(website_user_id, account_type, skills_list):
     async with aiohttp.ClientSession() as session:
         headers = {
@@ -113,7 +113,7 @@ async def skills_subscription(website_user_id, account_type, skills_list):
                 return response.status
 
 
-# отправляем сообщение
+# send message
 async def send_message(room_id, sender_id, message_text):
     async with aiohttp.ClientSession() as session:
         headers = {
@@ -131,7 +131,7 @@ async def send_message(room_id, sender_id, message_text):
                 return f'Сообщение не доставлно'
 
 
-# отправляем сообщение кандидату
+# send message to candidate
 async def send_new_message_to_candidate(candidate, from_user, message):
     async with aiohttp.ClientSession() as session:
         headers = {
@@ -150,7 +150,7 @@ async def send_new_message_to_candidate(candidate, from_user, message):
                 return f'Сообщение не доставлно'
 
 
-# открываем контакты для вакансии которая пришла
+# open contacts for employer
 async def open_contacts_to_company(website_id, company):
     async with aiohttp.ClientSession() as session:
         headers = {

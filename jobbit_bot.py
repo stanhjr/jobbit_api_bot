@@ -80,7 +80,7 @@ async def clear_command(message: types.Message):
                            reply_markup=keyboards.default_keyboard(message.from_user.id))
 
 
-# колл бек ответа на сообщение
+# callback of a reply to a message
 @dp.callback_query_handler(lambda c: c.data and c.data.startswith('a~'))
 async def answer_process_callback(callback_query: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
@@ -91,7 +91,7 @@ async def answer_process_callback(callback_query: types.CallbackQuery, state: FS
     await bot.answer_callback_query(callback_query_id=callback_query.id)
 
 
-# получаем текст сообщения для ответа и передаем его на апи для отправления
+# get text a message for request
 @dp.message_handler(state=MessageAnswerFrom.new_message)
 async def new_message_for_answer_getter(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
@@ -106,7 +106,7 @@ async def new_message_for_answer_getter(message: types.Message, state: FSMContex
     await state.finish()
 
 
-# обрабатываем начало написания сообщения новому кандидату
+# processing the start of writing a message to a new candidate
 @dp.callback_query_handler(lambda c: c.data and c.data.startswith('c~'))
 async def answer_to_new_candidate_callback(callback_query: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
@@ -117,7 +117,7 @@ async def answer_to_new_candidate_callback(callback_query: types.CallbackQuery, 
     await bot.answer_callback_query(callback_query_id=callback_query.id)
 
 
-# Пишем сообщение новому кандидату и отправляем его
+# write a message to a new candidate and send it
 @dp.message_handler(state=NewCandidateMessageForm.new_message)
 async def new_message_for_answer_getter(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
@@ -133,7 +133,7 @@ async def new_message_for_answer_getter(message: types.Message, state: FSMContex
                            reply_markup=keyboards.default_keyboard(message.from_user.id))
 
 
-# колл бек ответа на сообщения о новой вакансии
+# call back response to messages about a new vacancy
 @dp.callback_query_handler(lambda c: c.data and c.data.startswith('av~'))
 async def answer_process_callback(callback_query: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
@@ -144,7 +144,7 @@ async def answer_process_callback(callback_query: types.CallbackQuery, state: FS
     await bot.answer_callback_query(callback_query_id=callback_query.id)
 
 
-# получаем текст сообщения для ответа на сообщение о новой вакансии и отправляем его
+# get the text of the message to reply to a message about a new vacancy
 @dp.message_handler(state=NewVacancyMessageForm.new_message)
 async def new_message_for_answer_getter(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
@@ -159,7 +159,7 @@ async def new_message_for_answer_getter(message: types.Message, state: FSMContex
     await state.finish()
 
 
-# открыть контакты в ответ на сообщение о новой вакансии
+# open contacts
 @dp.callback_query_handler(lambda c: c.data and c.data.startswith('o~'))
 async def open_contacts_to_vacancy_callback(callback_query: types.CallbackQuery):
     company_id = callback_query.data.split('~')[1]
@@ -170,7 +170,7 @@ async def open_contacts_to_vacancy_callback(callback_query: types.CallbackQuery)
                            reply_markup=keyboards.default_keyboard(callback_query.from_user.id))
 
 
-# обработка нажатия кнопки настройки
+# push settings button
 @dp.message_handler(aiogram.filters.ChatTypeFilter(chat_type=ChatType.PRIVATE),
                     aiogram.dispatcher.filters.Text(startswith=config.buttons_names['settings_button_name']))
 async def setting_button_callback(message: types.Message):
@@ -179,7 +179,7 @@ async def setting_button_callback(message: types.Message):
                            reply_markup=keyboards.settings_keyboard(message))
 
 
-# обработка нажатия кнопки ВКЛЮЧИТЬ получение сообщений
+# enable receiving messages button
 @dp.message_handler(aiogram.filters.ChatTypeFilter(chat_type=ChatType.PRIVATE),
                     aiogram.dispatcher.filters.Text(startswith=config.buttons_names['want_to_receive_text_messages']))
 async def want_to_receive_text_messages_callback(message: types.Message):
@@ -189,7 +189,7 @@ async def want_to_receive_text_messages_callback(message: types.Message):
                            reply_markup=keyboards.settings_keyboard(message))
 
 
-# обработка нажатия кнопки ВЫКЛЮЧИТЬ получение сообщений
+# disable receiving messages button
 @dp.message_handler(aiogram.filters.ChatTypeFilter(chat_type=ChatType.PRIVATE),
                     aiogram.dispatcher.filters.Text(startswith=config.buttons_names['stop_receiving_text_messages']))
 async def stop_receiving_text_messages_callback(message: types.Message):
@@ -199,7 +199,7 @@ async def stop_receiving_text_messages_callback(message: types.Message):
                            reply_markup=keyboards.settings_keyboard(message))
 
 
-# обработка нажатия кнопки ВКЛЮЧИТЬ получение оповещений
+# enable receiving alerts
 @dp.message_handler(aiogram.filters.ChatTypeFilter(chat_type=ChatType.PRIVATE),
                     aiogram.dispatcher.filters.Text(startswith=config.buttons_names['want_to_receive_other_messages']))
 async def want_to_receive_other_messages_callback(message: types.Message):
@@ -209,7 +209,7 @@ async def want_to_receive_other_messages_callback(message: types.Message):
                            reply_markup=keyboards.settings_keyboard(message))
 
 
-# обработка нажатия кнопки ВЫКЛЮЧИТЬ получение оповещений
+# disable receiving alerts
 @dp.message_handler(aiogram.filters.ChatTypeFilter(chat_type=ChatType.PRIVATE),
                     aiogram.dispatcher.filters.Text(startswith=config.buttons_names['stop_receiving_other_messages']))
 async def stop_receiving_other_messages_callback(message: types.Message):
@@ -219,7 +219,7 @@ async def stop_receiving_other_messages_callback(message: types.Message):
                            reply_markup=keyboards.settings_keyboard(message))
 
 
-# обработка нажатия кнопки на главную
+# go home
 @dp.message_handler(aiogram.filters.ChatTypeFilter(chat_type=ChatType.PRIVATE),
                     aiogram.dispatcher.filters.Text(startswith=config.buttons_names['go_back_button']))
 async def go_back_button_callback(message: types.Message):
@@ -228,7 +228,7 @@ async def go_back_button_callback(message: types.Message):
                            reply_markup=keyboards.default_keyboard(message))
 
 
-# обработчик нажатия кнопки обновление навыков
+#
 @dp.message_handler(aiogram.filters.ChatTypeFilter(chat_type=ChatType.PRIVATE),
                     aiogram.dispatcher.filters.Text(startswith=config.buttons_names['skills_update']))
 async def skills_update_callback(message: types.Message):
@@ -237,7 +237,7 @@ async def skills_update_callback(message: types.Message):
                            reply_markup=await keyboards.skills_keyboard(message))
 
 
-# Получить список подписок
+# get list of subscriptions
 @dp.message_handler(aiogram.filters.ChatTypeFilter(chat_type=ChatType.PRIVATE),
                     aiogram.dispatcher.filters.Text(startswith=config.buttons_names['get_list_of_subscription']))
 async def get_list_of_subscription(message: types.Message):
@@ -267,7 +267,7 @@ async def get_list_of_subscription(message: types.Message):
                                     parse_mode='HTML')
 
 
-# Удаление подписки
+# removing a subscription
 @dp.callback_query_handler(lambda c: c.data and c.data.startswith('remove_sub'))
 async def skills_process_callback(callback_query: types.CallbackQuery):
     callback_data = callback_query.data[10:].split('%%%')
@@ -311,7 +311,7 @@ async def skills_process_callback(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query_id=callback_query.id)
 
 
-# колл бек отправки подписок на сайт
+# call back for sending subscriptions
 @dp.callback_query_handler(lambda c: c.data and c.data.startswith('send_skills'))
 async def answer_process_callback(callback_query: types.CallbackQuery):
     user_skills_list, my_side, website_user_id = data_api.get_user_list_skill_id(callback_query)
@@ -330,6 +330,7 @@ async def answer_process_callback(callback_query: types.CallbackQuery):
         data_api.delete_all_skill_for_user(message=callback_query)
 
 
+# get stats for admin
 @dp.message_handler(aiogram.filters.ChatTypeFilter(chat_type=ChatType.PRIVATE),
                     aiogram.dispatcher.filters.Text(startswith=config.buttons_names['stats_button_name']))
 async def stats_button_name_callback(message: types.Message):
