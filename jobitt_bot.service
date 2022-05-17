@@ -1,0 +1,15 @@
+[Unit]
+Description=Telegram bot jobitt_bot
+After=syslog.target
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/jobitt/bot_1/jobitt_bot
+ExecStart=/home/jobitt/bot_1/bot_1env/bin/python3 /home/jobitt/bot_1/jobitt_bot/bot.py
+RestartSec=10
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

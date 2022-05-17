@@ -1,0 +1,12 @@
+[Unit]
+Description=uWSGI instance to serve my_flask
+After=network.target
+
+[Service]
+Group=www-data
+WorkingDirectory=/home/jobitt/bot_1/jobitt_bot
+Environment="PATH=/home/jobitt/bot_1/bot_1env/"
+ExecStart=uwsgi --ini /home/jobitt/bot_1/jobitt_bot/wsgi_config.ini
+
+[Install]
+WantedBy=multi-user.target
