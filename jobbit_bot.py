@@ -50,6 +50,7 @@ async def cancel_handler(message: types.Message, state: FSMContext):
 @dp.message_handler(aiogram.filters.ChatTypeFilter(chat_type=ChatType.PRIVATE), commands=['start'])
 async def process_start_command(message: types.Message):
     try:
+        print(message)
         if not data_api.get_user(message):
             data = await asyncio.create_task(
                 api_jobitt_connect.get_user_account_details(token=message.text.split(' ')[1]))
@@ -68,8 +69,13 @@ async def process_start_command(message: types.Message):
                                    reply_markup=keyboards.default_keyboard(message.from_user.id))
 
     except IndexError:
-        await bot.send_message(chat_id=message.from_user.id,
-                               text=config.bot_messages['no_code_error'])
+        if message.from_user.id in config.admin_ids:
+            await bot.send_message(chat_id=message.from_user.id,
+                                   text=config.bot_messages['start_admin_message_text'],
+                                   reply_markup=keyboards.admin_keyboard())
+        else:
+            await bot.send_message(chat_id=message.from_user.id,
+                                   text=config.bot_messages['no_code_error'])
 
 
 @dp.message_handler(aiogram.filters.ChatTypeFilter(chat_type=ChatType.PRIVATE), commands=['clear'])
@@ -88,7 +94,7 @@ async def answer_process_callback(callback_query: types.CallbackQuery, state: FS
     await MessageAnswerFrom.new_message.set()
     await bot.send_message(chat_id=callback_query.from_user.id, text=config.bot_messages['ask_to_send_text_message'],
                            reply_markup=keyboards.cancel_keyboard())
-    await bot.answer_callback_query(callback_query_id=callback_query.id)
+    # await bot.answer_callback_query(callback_query_id=callback_query.id)
 
 
 # get text a message for request
@@ -114,7 +120,7 @@ async def answer_to_new_candidate_callback(callback_query: types.CallbackQuery, 
     await NewCandidateMessageForm.new_message.set()
     await bot.send_message(chat_id=callback_query.from_user.id, text=config.bot_messages['ask_to_send_text_message'],
                            reply_markup=keyboards.cancel_keyboard())
-    await bot.answer_callback_query(callback_query_id=callback_query.id)
+    # await bot.answer_callback_query(callback_query_id=callback_query.id)
 
 
 # write a message to a new candidate and send it
@@ -141,7 +147,7 @@ async def answer_process_callback(callback_query: types.CallbackQuery, state: FS
     await NewVacancyMessageForm.new_message.set()
     await bot.send_message(chat_id=callback_query.from_user.id, text=config.bot_messages['ask_to_send_text_message'],
                            reply_markup=keyboards.cancel_keyboard())
-    await bot.answer_callback_query(callback_query_id=callback_query.id)
+    # await bot.answer_callback_query(callback_query_id=callback_query.id)
 
 
 # get the text of the message to reply to a message about a new vacancy
@@ -174,9 +180,13 @@ async def open_contacts_to_vacancy_callback(callback_query: types.CallbackQuery)
 @dp.message_handler(aiogram.filters.ChatTypeFilter(chat_type=ChatType.PRIVATE),
                     aiogram.dispatcher.filters.Text(startswith=config.buttons_names['settings_button_name']))
 async def setting_button_callback(message: types.Message):
-    await bot.send_message(chat_id=message.from_user.id,
-                           text=config.bot_messages['settings_message_text'],
-                           reply_markup=keyboards.settings_keyboard(message))
+    try:
+        await bot.send_message(chat_id=message.from_user.id,
+                               text=config.bot_messages['settings_message_text'],
+                               reply_markup=keyboards.settings_keyboard(message))
+    except TypeError:
+        await bot.send_message(chat_id=message.from_user.id,
+                               text=config.bot_messages['not access'])
 
 
 # enable receiving messages button
@@ -308,7 +318,7 @@ async def skills_process_callback(callback_query: types.CallbackQuery):
                                         message_id=callback_query.message.message_id,
                                         reply_markup=keyboards_new)
 
-    await bot.answer_callback_query(callback_query_id=callback_query.id)
+    # await bot.answer_callback_query(callback_query_id=callback_query.id)
 
 
 # call back for sending subscriptions

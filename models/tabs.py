@@ -2,7 +2,7 @@ import time
 from datetime import datetime
 from contextlib import contextmanager
 
-from sqlalchemy import Table, Column, Integer, String, ForeignKey
+from sqlalchemy import Table, Column, Integer, String, ForeignKey, BigInteger
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship
@@ -34,12 +34,12 @@ association_table = Table('association', Base.metadata,
 
 class Users(Base):
     __tablename__ = 'jobbit_users'
-    id = Column(Integer, unique=True, primary_key=True)
-    telegram_id = Column(Integer, unique=True)
+    id = Column(BigInteger, unique=True, primary_key=True)
+    telegram_id = Column(BigInteger)
     username = Column(String(120))
     first_name = Column(String(120))
     last_name = Column(String(120))
-    registration_date = Column(Integer)
+    registration_date = Column(BigInteger)
     telegram_language = Column(String(20))
     website_language = Column(String(20))
     is_banned = Column(Integer, default=0)
@@ -48,7 +48,7 @@ class Users(Base):
     notification_counter = Column(Integer, default=0)
 
     first_message = Column(Integer, default=0)
-    website_id = Column(Integer, unique=True)
+    website_id = Column(BigInteger)
     website_name = Column(String(120))
     website_role = Column(Integer, default=1)
     messages_allowed = Column(Integer, default=1)
@@ -65,7 +65,7 @@ class Users(Base):
         self.telegram_language = telegram_language
         self.website_language = website_language
         self.website_name = website_name
-        self.registration_date = time.time()
+        self.registration_date = round(time.time())
 
     @property
     def get_date_add(self):
@@ -74,8 +74,8 @@ class Users(Base):
 
 class Skills(Base):
     __tablename__ = 'skills'
-    id = Column(Integer, unique=True, primary_key=True)
-    skill_id = Column(Integer, unique=True)
+    id = Column(BigInteger, unique=True, primary_key=True)
+    skill_id = Column(BigInteger, unique=True)
     skill_name = Column(String(120), nullable=False, unique=True)
     users = relationship("Users", secondary=association_table, back_populates="skills")
 

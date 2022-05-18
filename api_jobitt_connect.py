@@ -11,6 +11,8 @@ async def get_user_account_details(token):
         headers = {
             'telegram-bot-token': config.output_api_settings['telegram_bot_token_for_req'],
             'accept-language': 'ru',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json'
         }
         params = (
             ('code', token),

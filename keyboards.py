@@ -2,10 +2,16 @@ import asyncio
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
-
 import config
 from api_jobitt_connect import get_skills_for_website
 from models.db_api import data_api
+
+
+def admin_keyboard():
+    admin_keyboard_markup = ReplyKeyboardMarkup(resize_keyboard=True)
+    stats_button = KeyboardButton(text=config.buttons_names['stats_button_name'])
+    admin_keyboard_markup.add(stats_button)
+    return admin_keyboard_markup
 
 
 def default_keyboard(user_id):
@@ -44,25 +50,10 @@ def settings_keyboard(message):
     else:
         settings_keyboard_markup.add(go_back_button)
 
-    # if user_settings['messages_allowed']:
-    #     stop_receiving_text_messages = KeyboardButton(text=config.buttons_names['stop_receiving_text_messages'])
-    #     settings_keyboard_markup.add(stop_receiving_text_messages)
-    # else:
-    #     want_to_receive_text_messages = KeyboardButton(text=config.buttons_names['want_to_receive_text_messages'])
-    #     settings_keyboard_markup.add(want_to_receive_text_messages)
-    # if user_settings['other_alerts_allowed']:
-    #     stop_receiving_other_messages = KeyboardButton(text=config.buttons_names['stop_receiving_other_messages'])
-    #     settings_keyboard_markup.add(stop_receiving_other_messages)
-    # else:
-    #     want_to_receive_other_messages = KeyboardButton(text=config.buttons_names['want_to_receive_other_messages'])
-    #     settings_keyboard_markup.add(want_to_receive_other_messages)
-    # go_back_button = KeyboardButton(text=config.buttons_names['go_back_button'])
-    # settings_keyboard_markup.add(go_back_button)
-
     return settings_keyboard_markup
 
 
-# клавиатура для ответа на входящее сообщение
+# after for answer in enter message
 def new_message_answer_keyboard(room):
     answer_button_reply_markup = InlineKeyboardMarkup()
     answer_button = InlineKeyboardButton(text='Ответить', callback_data=f"a~{room}")
@@ -70,7 +61,7 @@ def new_message_answer_keyboard(room):
     return answer_button_reply_markup
 
 
-# клавиатура для отмены ввода
+# cancel enter text
 def cancel_keyboard():
     cancel_keyboard_markup = ReplyKeyboardMarkup(resize_keyboard=True)
     cancel_button = KeyboardButton(text='❌ Отменить')
@@ -116,9 +107,6 @@ async def skills_keyboard(message):
             skills_keyboard_markup.insert(InlineKeyboardButton(text=f"✔ {skill['name']}",
                                                                callback_data=f"s~{skill['id']}%%%{skill['name']}"))
 
-    # choose_around = InlineKeyboardButton(text=config.buttons_names['mark_all_skills_button_name'],
-    #                                      callback_data='change_all_skills')
-    # skills_keyboard_markup.add(choose_around)
     send_button = InlineKeyboardButton(text=config.buttons_names['send_skills_button_name'],
                                        callback_data='send_skills')
 
@@ -139,7 +127,6 @@ def new_vacancy_keyboard(company_id, vacancy_id, url):
     send_message_button = InlineKeyboardButton(text=config.buttons_names['send_message_to_vacancy_button_name'],
                                                callback_data=f"av~{vacancy_id}")
 
-
     open_contacts_button_button = InlineKeyboardButton(
         text=config.buttons_names['open_contacts_to_vacancy_button_name'],
         callback_data=f"o~{company_id}")
@@ -151,18 +138,9 @@ def new_vacancy_keyboard(company_id, vacancy_id, url):
     return new_vacancy_keyboard_markup
 
 
-# def get_subscription(data):
-#     inline_kb_full = InlineKeyboardMarkup(row_width=2)
-#     for dict_ in data:
-#         specializations = [item.get("name") for item in dict_.get("specializations")]
-#         text = f'Скилы {specializations}'
-#         inline_kb_full.add(InlineKeyboardButton(text, callback_data=f"remove_sub{dict_.get('id')}"),
-#                            InlineKeyboardButton('Удалить', callback_data=f"remove_sub{dict_.get('id')}"))
-#     # inline_kb_full.add(InlineKeyboardButton("❌Отмена", callback_data="currencydone"))
-#     return inline_kb_full
-
 def get_subscription(subscription, message_id):
     inline_kb_full = InlineKeyboardMarkup(row_width=1)
 
-    inline_kb_full.add(InlineKeyboardButton('❌ Удалить', callback_data=f"remove_sub{subscription.get('id')}%%%{message_id}"))
+    inline_kb_full.add(
+        InlineKeyboardButton('❌ Удалить', callback_data=f"remove_sub{subscription.get('id')}%%%{message_id}"))
     return inline_kb_full

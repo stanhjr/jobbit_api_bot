@@ -1,7 +1,4 @@
-import smtplib
-
-from sqlalchemy.orm import contains_eager
-from sqlalchemy.sql import func, functions
+from sqlalchemy.sql import func
 from sqlalchemy.sql.elements import and_
 
 from models.tabs import session, Users, Skills, association_table
@@ -176,7 +173,7 @@ class DataApi:
     def get_user_telegram_id(self, website_id):
         with self.session() as s:
             users = s.query(Users.telegram_id).filter(and_(Users.website_id == website_id,
-                                                           Users.other_alerts_allowed == 1,
+                                                           Users.messages_allowed == 1,
                                                            Users.is_active == 1)).all()
 
             if users:
@@ -199,7 +196,7 @@ class DataApi:
 
     def get_sum_notifications(self):
         with self.session() as s:
-            return s.query(func.sum(Users.notification_counter)).scalar()
+            return s.query(func.sum(Users.notification_counter)).scalar() or 0
 
     # def copy_user(self):
     #     with self.session() as s:
