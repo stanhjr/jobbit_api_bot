@@ -3,7 +3,7 @@ import asyncio
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
 import config
-from api_jobitt_connect import get_skills_for_website
+from api_jobitt_connect import get_skills_for_website, get_skills_for_type_id_for_website
 from models.db_api import data_api
 
 
@@ -69,48 +69,96 @@ def cancel_keyboard():
     return cancel_keyboard_markup
 
 
-# # инлайн клавиатура для выбора и отправки скилов (Stan)
-# async def skills_keyboard(message):
-#     website_skills = await asyncio.create_task(get_skills_for_website())
-#     user_skills_dict, user_list_skill_id = data_api.get_user_skills(message)
-#     skills_keyboard_markup = InlineKeyboardMarkup(row_width=2)
-#
-#     for skill in website_skills:
-#         if skill.get("id") in user_list_skill_id:
-#             skills_keyboard_markup.insert(InlineKeyboardButton(text=f"❌ {skill['name']}",
-#                                                                callback_data=f"s~{skill['id']}%%%{skill['name']}"))
-#
-#         else:
-#             skills_keyboard_markup.insert(InlineKeyboardButton(text=f"✔ {skill['name']}",
-#                                                                callback_data=f"s~{skill['id']}%%%{skill['name']}"))
-#
-#     choose_around = InlineKeyboardButton(text=config.buttons_names['mark_all_skills_button_name'],
-#                                          callback_data='change_all_skills')
-#     send_button = InlineKeyboardButton(text=config.buttons_names['send_skills_button_name'],
-#                                        callback_data='send_skills')
-#     skills_keyboard_markup.add(choose_around)
-#     skills_keyboard_markup.add(send_button)
-#     return skills_keyboard_markup
-
 # add skills
-async def skills_keyboard(message):
-    website_skills = await asyncio.create_task(get_skills_for_website())
+async def skills_keyboard(message, msg_id, type_id=None):
+    if not type_id:
+        type_id = 1
+    website_skills = await asyncio.create_task(get_skills_for_website(type_id))
     user_skills_dict, user_list_skill_id = data_api.get_user_skills(message)
-    skills_keyboard_markup = InlineKeyboardMarkup(row_width=2)
+    skills_keyboard_markup = InlineKeyboardMarkup(row_width=3)
 
     for skill in website_skills:
+        type_id = skill.get("type_id")
         if skill.get("id") in user_list_skill_id:
+            skill_name = skill['name'][:5]
             skills_keyboard_markup.insert(InlineKeyboardButton(text=f"❌ {skill['name']}",
-                                                               callback_data=f"s~{skill['id']}%%%{skill['name']}"))
+                                                               callback_data=f"s~{skill['id']}%{skill_name}%{msg_id}%{type_id}"))
 
         else:
+            skill_name = skill['name'][:5]
             skills_keyboard_markup.insert(InlineKeyboardButton(text=f"✔ {skill['name']}",
-                                                               callback_data=f"s~{skill['id']}%%%{skill['name']}"))
+                                                               callback_data=f"s~{skill['id']}%{skill_name}%{msg_id}%{type_id}"))
 
     send_button = InlineKeyboardButton(text=config.buttons_names['send_skills_button_name'],
                                        callback_data='send_skills')
+    empty_button = InlineKeyboardButton(text=' ', callback_data='nothing')
+    if type_id in (2, 3):
+        next_type_id = type_id + 1
+        previous_type_id = type_id - 1
+        right_button = InlineKeyboardButton(text='Вперёд ▶️',
+                                            callback_data=f'i={next_type_id}={msg_id}')
+        left_button = InlineKeyboardButton(text='◀ Назад',
+                                           callback_data=f'i={previous_type_id}={msg_id}')
 
-    skills_keyboard_markup.add(send_button)
+    elif type_id == 4:
+        previous_type_id = 3
+        right_button = empty_button
+        left_button = InlineKeyboardButton(text='◀ Назад',
+                                           callback_data=f'i={previous_type_id}={msg_id}')
+    else:
+        next_type_id = 2
+        right_button = InlineKeyboardButton(text='Вперёд ▶️',
+                                            callback_data=f'i={next_type_id}={msg_id}')
+        left_button = empty_button
+
+    skills_keyboard_markup.add(left_button, send_button, right_button)
+    return skills_keyboard_markup
+
+
+# add skills
+async def skills_keyboard_pagination(callback_query, type_id, msg_id):
+    website_skills = await asyncio.create_task(get_skills_for_type_id_for_website(type_id))
+    user_skills_dict, user_list_skill_id = data_api.get_user_skills(callback_query)
+    skills_keyboard_markup = InlineKeyboardMarkup(row_width=3)
+
+    for skill in website_skills:
+        type_id = skill.get("type_id")
+        if skill.get("id") in user_list_skill_id:
+            skill_name = skill['name'][:5]
+            skills_keyboard_markup.insert(InlineKeyboardButton(text=f"❌ {skill['name']}",
+                                                               callback_data=f"s~{skill['id']}%{skill_name}%{msg_id}%{type_id}"))
+
+        else:
+            skill_name = skill['name'][:5]
+            skills_keyboard_markup.insert(InlineKeyboardButton(text=f"✔ {skill['name']}",
+                                                               callback_data=f"s~{skill['id']}%{skill_name}%{msg_id}%{type_id}"))
+
+    send_button = InlineKeyboardButton(text=config.buttons_names['send_skills_button_name'],
+                                       callback_data='send_skills')
+    empty_button = InlineKeyboardButton(text='.', callback_data='nothing')
+
+    if type_id in (2, 3):
+        next_type_id = type_id + 1
+        previous_type_id = type_id - 1
+        right_button = InlineKeyboardButton(text='Вперёд ▶️',
+                                            callback_data=f'i={next_type_id}={msg_id}')
+        left_button = InlineKeyboardButton(text='◀ Назад',
+                                           callback_data=f'i={previous_type_id}={msg_id}')
+
+    elif type_id == 4:
+        previous_type_id = type_id - 1
+        right_button = empty_button
+        left_button = InlineKeyboardButton(text='◀ Назад',
+                                           callback_data=f'i={previous_type_id}={msg_id}')
+
+    else:
+        next_type_id = 2
+        right_button = InlineKeyboardButton(text='Вперёд ▶️',
+                                            callback_data=f'i={next_type_id}={msg_id}')
+        left_button = empty_button
+
+    skills_keyboard_markup.add(left_button, send_button, right_button)
+
     return skills_keyboard_markup
 
 

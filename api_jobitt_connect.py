@@ -46,9 +46,30 @@ async def vacancy_response(vacancy, from_user, message):
 
 
 # get main list of skills
-async def get_skills_for_website():
+async def get_skills_for_website(type_id):
     async with aiohttp.ClientSession() as session:
-        async with session.get(f"{config.output_api_settings['api_hostname']}/api/specializations") as response:
+        url = f"{config.output_api_settings['api_hostname']}/api/specializations"
+        params = (
+            ('type_id', type_id),
+        )
+        async with session.get(url=url, params=params) as response:
+            if response.status == 200:
+                data = await response.json()
+                data = data.get("data")
+                list_skills = data.get("list")
+                return list_skills
+            else:
+                return False
+
+
+# get main list of skills
+async def get_skills_for_type_id_for_website(type_id):
+    async with aiohttp.ClientSession() as session:
+        params = (
+            ('type_id', type_id),
+        )
+        url = f"{config.output_api_settings['api_hostname']}/api/specializations"
+        async with session.get(url=url, params=params) as response:
             if response.status == 200:
                 data = await response.json()
                 data = data.get("data")
@@ -112,7 +133,7 @@ async def skills_subscription(website_user_id, account_type, skills_list):
                 data = await response.json()
                 return data
             else:
-                return response.status
+                return {"response_code": response.status}
 
 
 # send message

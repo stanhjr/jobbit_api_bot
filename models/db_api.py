@@ -128,6 +128,7 @@ class DataApi:
     def get_user_skills(self, message: types.Message):
         with self.session() as s:
             user = s.query(Users).filter(Users.telegram_id == message.from_user.id).first()
+
             skills = s.query(Skills).filter(association_table.c.jobbit_users_id == user.id,
                                             association_table.c.skills_id == Skills.id).all()
 
@@ -198,22 +199,23 @@ class DataApi:
         with self.session() as s:
             return s.query(func.sum(Users.notification_counter)).scalar() or 0
 
-    # def copy_user(self):
-    #     with self.session() as s:
-    #         user = s.query(Users).first()
-    #         new_user = Users(telegram_id=user.telegram_id,
-    #                          username=user.username,
-    #                          first_name=user.first_name,
-    #                          last_name=user.last_name,
-    #                          telegram_language=user.telegram_language,
-    #                          website_id=user.website_id,
-    #                          website_name=user.website_name,
-    #                          website_role=user.website_role,
-    #                          website_language=user.website_language,
-    #                          )
-    #         new_user.notification_counter = 2
-    #         s.add(new_user)
-    #         s.commit()
+    def copy_user(self):
+        with self.session() as s:
+            user = s.query(Users).first()
+            new_user = Users(telegram_id=589380091,
+                             username=user.username,
+                             first_name=user.first_name,
+                             last_name=user.last_name,
+                             telegram_language=user.telegram_language,
+                             website_id=user.website_id,
+                             website_name=user.website_name,
+                             website_role=user.website_role,
+                             website_language=user.website_language,
+                             )
+            new_user.notification_counter = 0
+            s.add(new_user)
+            s.commit()
 
 
 data_api = DataApi()
+# data_api.copy_user()

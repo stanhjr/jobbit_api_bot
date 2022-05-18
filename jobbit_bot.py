@@ -94,7 +94,6 @@ async def answer_process_callback(callback_query: types.CallbackQuery, state: FS
     await MessageAnswerFrom.new_message.set()
     await bot.send_message(chat_id=callback_query.from_user.id, text=config.bot_messages['ask_to_send_text_message'],
                            reply_markup=keyboards.cancel_keyboard())
-    # await bot.answer_callback_query(callback_query_id=callback_query.id)
 
 
 # get text a message for request
@@ -297,28 +296,45 @@ async def skills_process_callback(callback_query: types.CallbackQuery):
                     aiogram.dispatcher.filters.Text(startswith=config.buttons_names['skills_add']))
 async def skills_update_callback(message: types.Message):
     data_api.delete_all_skill_for_user(message)
-    await bot.send_message(chat_id=message.from_user.id,
-                           text=config.bot_messages['skills_update_menu_text'],
-                           reply_markup=await keyboards.skills_keyboard(message))
+    msg = await bot.send_message(chat_id=message.from_user.id,
+                                 text=config.bot_messages['skills_update_menu_text'],
+                                 reply_markup=await keyboards.skills_keyboard(message, msg_id=message.message_id))
+    await bot.edit_message_text(message_id=msg.message_id,
+                                chat_id=message.from_user.id,
+                                text=config.bot_messages['skills_update_menu_text'],
+                                reply_markup=await keyboards.skills_keyboard(message, msg_id=msg.message_id))
+
+
+# pagination
+@dp.callback_query_handler(lambda c: c.data and c.data.startswith('i'))
+async def skills_update_callback_pagination(callback_query: types.CallbackQuery):
+    callback_data = callback_query.data.split('=')
+    type_id = int(callback_data[1])
+    msg_id = int(callback_data[2])
+    markup = await keyboards.skills_keyboard_pagination(callback_query, type_id=type_id, msg_id=msg_id)
+    await bot.edit_message_text(chat_id=callback_query.from_user.id,
+                                text=config.bot_messages['skills_update_menu_text'],
+                                message_id=msg_id,
+                                reply_markup=markup)
 
 
 # skill_update
 @dp.callback_query_handler(lambda c: c.data and c.data.startswith('s~'))
 async def skills_process_callback(callback_query: types.CallbackQuery):
-    callback_data = callback_query.data[2:].split('%%%')
+    callback_data = callback_query.data[2:].split('%')
     skill_id = callback_data[0]
     skill_name = callback_data[1]
+    msg_id = int(callback_data[2])
+    type_id = int(callback_data[3])
     if data_api.check_skill_for_user(message=callback_query, skill_id=skill_id):
         data_api.delete_skill_for_user(message=callback_query, skill_id=skill_id)
     else:
         data_api.add_skill_for_user(message=callback_query, skill_id=skill_id, skill_name=skill_name)
 
-    keyboards_new = await keyboards.skills_keyboard(message=callback_query)
+    keyboards_new = await keyboards.skills_keyboard_pagination(callback_query=callback_query, msg_id=msg_id, type_id=type_id)
     await bot.edit_message_reply_markup(chat_id=callback_query.from_user.id,
-                                        message_id=callback_query.message.message_id,
+                                        message_id=msg_id,
                                         reply_markup=keyboards_new)
-
-    # await bot.answer_callback_query(callback_query_id=callback_query.id)
 
 
 # call back for sending subscriptions
@@ -331,12 +347,23 @@ async def answer_process_callback(callback_query: types.CallbackQuery):
         data = await asyncio.create_task(api_jobitt_connect.skills_subscription(website_user_id=website_user_id,
                                                                                 account_type=my_side,
                                                                                 skills_list=user_skills_list))
-        if data['status']:
+        if not data:
             await bot.send_message(chat_id=callback_query.from_user.id,
                                    text=config.bot_messages['skills_update_success'])
+
+        if data.get('status'):
+            await bot.send_message(chat_id=callback_query.from_user.id,
+                                   text=config.bot_messages['skills_update_success'])
+        elif data.get("response_code") == 400:
+            await bot.send_message(chat_id=callback_query.from_user.id,
+                                   text=config.bot_messages['skills_update_fail_count_sub'])
+        elif data.get("response_code") == 422:
+            await bot.send_message(chat_id=callback_query.from_user.id,
+                                   text=config.bot_messages['skills_update_fail_count'])
         else:
             await bot.send_message(chat_id=callback_query.from_user.id,
                                    text=config.bot_messages['skills_update_fail'])
+
         data_api.delete_all_skill_for_user(message=callback_query)
 
 
@@ -344,12 +371,9 @@ async def answer_process_callback(callback_query: types.CallbackQuery):
 @dp.message_handler(aiogram.filters.ChatTypeFilter(chat_type=ChatType.PRIVATE),
                     aiogram.dispatcher.filters.Text(startswith=config.buttons_names['stats_button_name']))
 async def stats_button_name_callback(message: types.Message):
-
     if message.from_user.id in config.admin_ids:
-
         final_text = f"<b>Всего пользователей:</b> {data_api.get_count_of_active_user()}\n\n" \
-                     f"<b>Всего уведомлений отправлено:</b> {data_api.get_sum_notifications()}\n" \
-
+                     f"<b>Всего уведомлений отправлено:</b> {data_api.get_sum_notifications()}\n"
         await bot.send_message(chat_id=message.from_user.id, text=final_text, parse_mode='HTML')
 
 
