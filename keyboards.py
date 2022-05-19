@@ -90,7 +90,7 @@ async def skills_keyboard(message, msg_id, type_id=None):
                                                                callback_data=f"s~{skill['id']}%{skill_name}%{msg_id}%{type_id}"))
 
     send_button = InlineKeyboardButton(text=config.buttons_names['send_skills_button_name'],
-                                       callback_data='send_skills')
+                                       callback_data=f'send_skills%{msg_id}')
     empty_button = InlineKeyboardButton(text=' ', callback_data='nothing')
     if type_id in (2, 3):
         next_type_id = type_id + 1
@@ -115,7 +115,7 @@ async def skills_keyboard(message, msg_id, type_id=None):
     return skills_keyboard_markup
 
 
-# add skills
+# skills pagination
 async def skills_keyboard_pagination(callback_query, type_id, msg_id):
     website_skills = await asyncio.create_task(get_skills_for_type_id_for_website(type_id))
     user_skills_dict, user_list_skill_id = data_api.get_user_skills(callback_query)
@@ -134,8 +134,8 @@ async def skills_keyboard_pagination(callback_query, type_id, msg_id):
                                                                callback_data=f"s~{skill['id']}%{skill_name}%{msg_id}%{type_id}"))
 
     send_button = InlineKeyboardButton(text=config.buttons_names['send_skills_button_name'],
-                                       callback_data='send_skills')
-    empty_button = InlineKeyboardButton(text='.', callback_data='nothing')
+                                       callback_data=f'send_skills%{msg_id}')
+    empty_button = InlineKeyboardButton(text=' ', callback_data='nothing')
 
     if type_id in (2, 3):
         next_type_id = type_id + 1

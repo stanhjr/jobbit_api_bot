@@ -20,7 +20,7 @@ def session():
     try:
         yield db_session
     except Exception as e:
-        print(e)
+        print('sql', e)
     finally:
         db_session.remove()
         connection.close()

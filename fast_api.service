@@ -3,10 +3,10 @@ Description=Gunicorn Daemon for FastAPI
 After=network.target
 
 [Service]
-User=demo
+User=root
 Group=www-data
-WorkingDirectory=/home/jobitt/bot_1/jobitt_bot
-ExecStart=/home/demo/fastapi_demo/venv/bin/gunicorn -c gunicorn_conf.py my_fast_api:app
+WorkingDirectory=/home/stan/BOTS/jobbit_api_bot
+ExecStart=/home/stan/BOTS/jobbit_api_bot/venv/bin/gunicorn -c gunicorn_conf.py fast_api:app
 
 [Install]
 WantedBy=multi-user.target

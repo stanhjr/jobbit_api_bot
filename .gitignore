@@ -5,7 +5,8 @@ __pycache__/
 
 # C extensions
 *.so
-
+access_log
+error_log
 # Distribution / packaging
 venv
 .idea

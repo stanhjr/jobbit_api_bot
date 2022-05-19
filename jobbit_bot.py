@@ -341,6 +341,7 @@ async def skills_process_callback(callback_query: types.CallbackQuery):
 @dp.callback_query_handler(lambda c: c.data and c.data.startswith('send_skills'))
 async def answer_process_callback(callback_query: types.CallbackQuery):
     user_skills_list, my_side, website_user_id = data_api.get_user_list_skill_id(callback_query)
+    msg_id = int(callback_query.data.split('%')[1])
 
     if user_skills_list:
 
@@ -348,21 +349,23 @@ async def answer_process_callback(callback_query: types.CallbackQuery):
                                                                                 account_type=my_side,
                                                                                 skills_list=user_skills_list))
         if not data:
-            await bot.send_message(chat_id=callback_query.from_user.id,
-                                   text=config.bot_messages['skills_update_success'])
-
+            await bot.edit_message_text(message_id=msg_id, chat_id=callback_query.from_user.id,
+                                        text=config.bot_messages['skills_update_success'])
         if data.get('status'):
-            await bot.send_message(chat_id=callback_query.from_user.id,
-                                   text=config.bot_messages['skills_update_success'])
+            await bot.edit_message_text(message_id=msg_id, chat_id=callback_query.from_user.id,
+                                        text=config.bot_messages['skills_update_success'])
+
         elif data.get("response_code") == 400:
-            await bot.send_message(chat_id=callback_query.from_user.id,
-                                   text=config.bot_messages['skills_update_fail_count_sub'])
+            await bot.edit_message_text(message_id=msg_id, chat_id=callback_query.from_user.id,
+                                        text=config.bot_messages['skills_update_fail_count_sub'])
+
         elif data.get("response_code") == 422:
-            await bot.send_message(chat_id=callback_query.from_user.id,
-                                   text=config.bot_messages['skills_update_fail_count'])
+            await bot.edit_message_text(message_id=msg_id, chat_id=callback_query.from_user.id,
+                                        text=config.bot_messages['skills_update_fail_count'])
+
         else:
-            await bot.send_message(chat_id=callback_query.from_user.id,
-                                   text=config.bot_messages['skills_update_fail'])
+            await bot.edit_message_text(message_id=msg_id, chat_id=callback_query.from_user.id,
+                                        text=config.bot_messages['skills_update_fail'])
 
         data_api.delete_all_skill_for_user(message=callback_query)
 
