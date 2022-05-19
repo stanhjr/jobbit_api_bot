@@ -16,10 +16,6 @@ DATABASE_URL = f'postgresql://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_HOST
 JOBBIT_API_HOSTNAME = os.getenv('JOBBIT_API_HOSTNAME')
 JOBBIT_API_TELEGRAM_BOT_TOKEN = os.getenv('JOBBIT_API_TELEGRAM_BOT_TOKEN')
 
-output_api_settings = {
-    'telegram_bot_token_for_req': os.getenv("JOBBIT_API_TELEGRAM_BOT_TOKEN"),
-    'api_hostname': os.getenv("JOBBIT_API_HOSTNAME"),
-}
 
 
 
