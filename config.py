@@ -1,10 +1,5 @@
 
-admin_ids = [999678965, 204239586, 589380091, 417960652]
-
-output_api_settings = {
-    'telegram_bot_token_for_req': 'dceKE8aq',
-    'api_hostname': 'https://apidev.jobitt.com',
-}
+ADMIN_IDS = [999678965, 204239586, 589380091, 417960652]
 
 
 buttons_names = {

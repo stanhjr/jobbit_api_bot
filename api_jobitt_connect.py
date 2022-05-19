@@ -2,23 +2,24 @@ import json
 
 import aiohttp
 
-import config
+from deploy.deploy_config import JOBBIT_API_TELEGRAM_BOT_TOKEN, JOBBIT_API_HOSTNAME
+
+HEADERS = {
+    'telegram-bot-token': JOBBIT_API_TELEGRAM_BOT_TOKEN,
+    'accept-language': 'ru',
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Accept': 'application/json'
+}
 
 
 # get user data in website
 async def get_user_account_details(token):
     async with aiohttp.ClientSession() as session:
-        headers = {
-            'telegram-bot-token': config.output_api_settings['telegram_bot_token_for_req'],
-            'accept-language': 'ru',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': 'application/json'
-        }
         params = (
             ('code', token),
         )
-        url = f"{config.output_api_settings['api_hostname']}/api/telegram-bot/user"
-        async with session.get(url=url, params=params, headers=headers) as resp:
+        url = f"{JOBBIT_API_HOSTNAME}/api/telegram-bot/user"
+        async with session.get(url=url, params=params, headers=HEADERS) as resp:
             if resp.status == 200:
                 return await resp.json()
             else:
@@ -28,17 +29,9 @@ async def get_user_account_details(token):
 # reply with a message for new vacancy
 async def vacancy_response(vacancy, from_user, message):
     async with aiohttp.ClientSession() as session:
-        headers = {
-            'telegram-bot-token': config.output_api_settings['telegram_bot_token_for_req'],
-            'accept-language': 'ru',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-
-        url = f"{config.output_api_settings['api_hostname']}/api/telegram-bot/job-application/{vacancy}"
+        url = f"{JOBBIT_API_HOSTNAME}/api/telegram-bot/job-application/{vacancy}"
         data = json.dumps({'from_user': from_user, 'message': message})
-
-        async with session.post(url=url, data=data, headers=headers) as resp:
+        async with session.post(url=url, data=data, headers=HEADERS) as resp:
             if resp.status == 200:
                 return f'Сообщение доставлено'
             else:
@@ -48,11 +41,12 @@ async def vacancy_response(vacancy, from_user, message):
 # get main list of skills
 async def get_skills_for_website(type_id):
     async with aiohttp.ClientSession() as session:
-        url = f"{config.output_api_settings['api_hostname']}/api/specializations"
+
+        url = f"{JOBBIT_API_HOSTNAME}/api/specializations"
         params = (
             ('type_id', type_id),
         )
-        async with session.get(url=url, params=params) as response:
+        async with session.get(url=url, params=params, headers=HEADERS) as response:
             if response.status == 200:
                 data = await response.json()
                 data = data.get("data")
@@ -68,7 +62,7 @@ async def get_skills_for_type_id_for_website(type_id):
         params = (
             ('type_id', type_id),
         )
-        url = f"{config.output_api_settings['api_hostname']}/api/specializations"
+        url = f"{JOBBIT_API_HOSTNAME}/api/specializations"
         async with session.get(url=url, params=params) as response:
             if response.status == 200:
                 data = await response.json()
@@ -82,15 +76,8 @@ async def get_skills_for_type_id_for_website(type_id):
 # list user subscriptions
 async def get_skills_for_user_in_website(website_user_id):
     async with aiohttp.ClientSession() as session:
-        headers = {
-            'telegram-bot-token': config.output_api_settings['telegram_bot_token_for_req'],
-            'accept-language': 'ru',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-        url = f"{config.output_api_settings['api_hostname']}/api/telegram-bot/subscription/{website_user_id}"
-        async with session.get(url, headers=headers) as response:
-
+        url = f"{JOBBIT_API_HOSTNAME}/api/telegram-bot/subscription/{website_user_id}"
+        async with session.get(url, headers=HEADERS) as response:
             if response.status == 200:
                 data = await response.json()
                 data = data.get("data")
@@ -102,14 +89,8 @@ async def get_skills_for_user_in_website(website_user_id):
 # delete subscriptions for skills
 async def delete_subscription_for_user_in_website(website_user_id, sub_id):
     async with aiohttp.ClientSession() as session:
-        headers = {
-            'telegram-bot-token': config.output_api_settings['telegram_bot_token_for_req'],
-            'accept-language': 'ru',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-        url = f"{config.output_api_settings['api_hostname']}/api/telegram-bot/subscription/{website_user_id}/{sub_id}"
-        async with session.delete(url, headers=headers) as response:
+        url = f"{JOBBIT_API_HOSTNAME}/api/telegram-bot/subscription/{website_user_id}/{sub_id}"
+        async with session.delete(url, headers=HEADERS) as response:
             if response.status == 200:
                 return True
             else:
@@ -119,15 +100,9 @@ async def delete_subscription_for_user_in_website(website_user_id, sub_id):
 # send a request for subscriptions to skills
 async def skills_subscription(website_user_id, account_type, skills_list):
     async with aiohttp.ClientSession() as session:
-        headers = {
-            'telegram-bot-token': config.output_api_settings['telegram_bot_token_for_req'],
-            'accept-language': 'ru',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-        url = f"{config.output_api_settings['api_hostname']}/api/telegram-bot/subscription/{website_user_id}"
+        url = f"{JOBBIT_API_HOSTNAME}/api/telegram-bot/subscription/{website_user_id}"
         data = json.dumps({"skills": skills_list, 'type': account_type})
-        async with session.post(url=url, data=data, headers=headers) as response:
+        async with session.post(url=url, data=data, headers=HEADERS) as response:
 
             if response.status == 200:
                 data = await response.json()
@@ -139,15 +114,9 @@ async def skills_subscription(website_user_id, account_type, skills_list):
 # send message
 async def send_message(room_id, sender_id, message_text):
     async with aiohttp.ClientSession() as session:
-        headers = {
-            'telegram-bot-token': config.output_api_settings['telegram_bot_token_for_req'],
-            'accept-language': 'ru',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
         data = json.dumps({'from_user': sender_id, 'message': message_text})
-        url = f"{config.output_api_settings['api_hostname']}/api/telegram-bot/message/{room_id}"
-        async with session.post(url=url, data=data, headers=headers) as resp:
+        url = f"{JOBBIT_API_HOSTNAME}/api/telegram-bot/message/{room_id}"
+        async with session.post(url=url, data=data, headers=HEADERS) as resp:
             if resp.status == 200:
                 return f'Сообщение доставлено'
             else:
@@ -157,16 +126,9 @@ async def send_message(room_id, sender_id, message_text):
 # send message to candidate
 async def send_new_message_to_candidate(candidate, from_user, message):
     async with aiohttp.ClientSession() as session:
-        headers = {
-            'telegram-bot-token': config.output_api_settings['telegram_bot_token_for_req'],
-            'accept-language': 'ru',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-
         data = json.dumps({'from_user': from_user, 'message': message})
-        url = f"{config.output_api_settings['api_hostname']}/api/telegram-bot/offer/{candidate}"
-        async with session.post(url=url, data=data, headers=headers) as resp:
+        url = f"{JOBBIT_API_HOSTNAME}/api/telegram-bot/offer/{candidate}"
+        async with session.post(url=url, data=data, headers=HEADERS) as resp:
             if resp.status == 200:
                 return f'Сообщение доставлено'
             else:
@@ -176,12 +138,8 @@ async def send_new_message_to_candidate(candidate, from_user, message):
 # open contacts for employer
 async def open_contacts_to_company(website_id, company):
     async with aiohttp.ClientSession() as session:
-        headers = {
-            'telegram-bot-token': config.output_api_settings['telegram_bot_token_for_req'],
-            'accept-language': 'ru'
-        }
-        url = f"{config.output_api_settings['api_hostname']}/api/telegram-bot/open-contacts/{website_id}/{company}"
-        async with session.post(url=url, headers=headers) as resp:
+        url = f"{JOBBIT_API_HOSTNAME}/api/telegram-bot/open-contacts/{website_id}/{company}"
+        async with session.post(url=url, headers=HEADERS) as resp:
             if resp.status == 200:
                 return f'Контакты открыты'
             else:

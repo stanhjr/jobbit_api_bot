@@ -1,4 +1,5 @@
 import json
+import os
 
 import uvicorn
 from fastapi import FastAPI, Response
@@ -33,7 +34,7 @@ class Candidate(BaseModel):
     candidate_id: int
 
 
-@app.post('/new-candidate')
+@app.post(f'{os.getenv("FAST_API_URL_NEW_CANDIDATE")}')
 async def new_candidate(candidate: Candidate):
     chat_ids = data_api.get_employer_telegram_id(candidate.to_user)
     if chat_ids:
@@ -50,7 +51,7 @@ async def new_candidate(candidate: Candidate):
     return Response(content=data, media_type="application/xml", status_code=200)
 
 
-@app.post('/new-vacancy')
+@app.post(f'{os.getenv("FAST_API_URL_NEW_VACANCY")}')
 async def new_vacancy(vacancy: Vacancy):
     chat_ids = data_api.get_candidate_telegram_id(vacancy.to_user)
     if chat_ids:
@@ -68,7 +69,7 @@ async def new_vacancy(vacancy: Vacancy):
     return Response(content=data, media_type="application/xml", status_code=200)
 
 
-@app.post('/new-message')
+@app.post(f'{os.getenv("FAST_API_URL_NEW_MESSAGE")}')
 async def new_message(message: NewMessage):
     chat_ids = data_api.get_user_telegram_id(message.receiver_id)
     if chat_ids:

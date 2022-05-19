@@ -2,6 +2,7 @@ import asyncio
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
+from config import ADMIN_IDS
 import config
 from api_jobitt_connect import get_skills_for_website, get_skills_for_type_id_for_website
 from models.db_api import data_api
@@ -18,7 +19,7 @@ def default_keyboard(user_id):
     default_keyboard_markup = ReplyKeyboardMarkup(resize_keyboard=True)
     settings_button = KeyboardButton(text=config.buttons_names['settings_button_name'])
     stats_button = KeyboardButton(text=config.buttons_names['stats_button_name'])
-    if user_id in config.admin_ids:
+    if user_id in ADMIN_IDS:
         default_keyboard_markup.add(stats_button)
     default_keyboard_markup.add(settings_button)
     return default_keyboard_markup
@@ -45,7 +46,7 @@ def settings_keyboard(message):
     go_back_button = KeyboardButton(text=config.buttons_names['go_back_button'])
 
     stats_button = KeyboardButton(text=config.buttons_names['stats_button_name'])
-    if message.from_user.id in config.admin_ids:
+    if message.from_user.id in ADMIN_IDS:
         settings_keyboard_markup.add(go_back_button, stats_button)
     else:
         settings_keyboard_markup.add(go_back_button)

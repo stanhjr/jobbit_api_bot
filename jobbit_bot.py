@@ -10,6 +10,7 @@ from aiogram.types import ChatType
 from aiogram.utils import executor
 
 import api_jobitt_connect
+from config import ADMIN_IDS
 import config
 from models.db_api import data_api
 import keyboards
@@ -69,7 +70,7 @@ async def process_start_command(message: types.Message):
                                    reply_markup=keyboards.default_keyboard(message.from_user.id))
 
     except IndexError:
-        if message.from_user.id in config.admin_ids:
+        if message.from_user.id in ADMIN_IDS:
             await bot.send_message(chat_id=message.from_user.id,
                                    text=config.bot_messages['start_admin_message_text'],
                                    reply_markup=keyboards.admin_keyboard())
@@ -374,7 +375,7 @@ async def answer_process_callback(callback_query: types.CallbackQuery):
 @dp.message_handler(aiogram.filters.ChatTypeFilter(chat_type=ChatType.PRIVATE),
                     aiogram.dispatcher.filters.Text(startswith=config.buttons_names['stats_button_name']))
 async def stats_button_name_callback(message: types.Message):
-    if message.from_user.id in config.admin_ids:
+    if message.from_user.id in ADMIN_IDS:
         final_text = f"<b>Всего пользователей:</b> {data_api.get_count_of_active_user()}\n\n" \
                      f"<b>Всего уведомлений отправлено:</b> {data_api.get_sum_notifications()}\n"
         await bot.send_message(chat_id=message.from_user.id, text=final_text, parse_mode='HTML')

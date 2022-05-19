@@ -10,7 +10,6 @@ error_log
 # Distribution / packaging
 venv
 .idea
-deploy/deploy_config.py
 .Python
 build/
 develop-eggs/
