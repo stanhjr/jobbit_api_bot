@@ -236,7 +236,7 @@ async def go_back_button_callback(message: types.Message):
                            reply_markup=keyboards.default_keyboard(message))
 
 
-#
+# skills_update
 @dp.message_handler(aiogram.filters.ChatTypeFilter(chat_type=ChatType.PRIVATE),
                     aiogram.dispatcher.filters.Text(startswith=config.buttons_names['skills_update']))
 async def skills_update_callback(message: types.Message):
@@ -278,7 +278,7 @@ async def get_list_of_subscription(message: types.Message):
 # removing a subscription
 @dp.callback_query_handler(lambda c: c.data and c.data.startswith('remove_sub'))
 async def skills_process_callback(callback_query: types.CallbackQuery):
-    callback_data = callback_query.data[10:].split('%%%')
+    callback_data = callback_query.data[10:].split('%')
     subscription_id = callback_data[0]
     message_id = callback_data[1]
     website_user_id = data_api.get_user_website_id(callback_query)

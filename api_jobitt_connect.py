@@ -7,7 +7,7 @@ from deploy.deploy_config import JOBBIT_API_TELEGRAM_BOT_TOKEN, JOBBIT_API_HOSTN
 HEADERS = {
     'telegram-bot-token': JOBBIT_API_TELEGRAM_BOT_TOKEN,
     'accept-language': 'ru',
-    'Content-Type': 'application/x-www-form-urlencoded',
+    'Content-Type': 'application/json',
     'Accept': 'application/json'
 }
 

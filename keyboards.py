@@ -189,5 +189,5 @@ def get_subscription(subscription, message_id):
     inline_kb_full = InlineKeyboardMarkup(row_width=1)
 
     inline_kb_full.add(
-        InlineKeyboardButton('❌ Удалить', callback_data=f"remove_sub{subscription.get('id')}%%%{message_id}"))
+        InlineKeyboardButton('❌ Удалить', callback_data=f"remove_sub{subscription.get('id')}%{message_id}"))
     return inline_kb_full
