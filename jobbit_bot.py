@@ -120,7 +120,6 @@ async def answer_to_new_candidate_callback(callback_query: types.CallbackQuery, 
     await NewCandidateMessageForm.new_message.set()
     await bot.send_message(chat_id=callback_query.from_user.id, text=config.bot_messages['ask_to_send_text_message'],
                            reply_markup=keyboards.cancel_keyboard())
-    # await bot.answer_callback_query(callback_query_id=callback_query.id)
 
 
 # write a message to a new candidate and send it
@@ -147,7 +146,6 @@ async def answer_process_callback(callback_query: types.CallbackQuery, state: FS
     await NewVacancyMessageForm.new_message.set()
     await bot.send_message(chat_id=callback_query.from_user.id, text=config.bot_messages['ask_to_send_text_message'],
                            reply_markup=keyboards.cancel_keyboard())
-    # await bot.answer_callback_query(callback_query_id=callback_query.id)
 
 
 # get the text of the message to reply to a message about a new vacancy

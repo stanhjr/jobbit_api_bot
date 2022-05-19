@@ -182,8 +182,6 @@ def new_vacancy_keyboard(company_id, vacancy_id, url):
 
     new_vacancy_keyboard_markup.add(send_message_button)
     new_vacancy_keyboard_markup.insert(open_contacts_button_button)
-    # link_button = InlineKeyboardButton(text="🌐 Перейти на сайт", url=url)
-    # new_vacancy_keyboard_markup.add(link_button)
     return new_vacancy_keyboard_markup
 
 
